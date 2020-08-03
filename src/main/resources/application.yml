@@ -1,0 +1,100 @@
+spring:
+  jmx:
+    enabled: false
+  profiles:
+    active: receiver,ssl
+
+hono:
+  client:
+    host: hono.eclipseprojects.io
+    reconnectAttempts: 5
+
+connection:
+  retryInterval: 1000
+
+tenant:
+  id: 381ed2ab-835f-4929-ac73-e015c3d25804
+device:
+  id: dd83f279-c2da-480c-ae2a-d3a4712e6603
+
+temp:
+  thresh: 70000 #default temperature threshold value
+
+debug:
+  mode: 0 #set 1 for debug mode ON
+
+time:
+  interval: 10000 #Time interval (in milliseconds) to dump telemetry summary
+
+---
+
+spring:
+  profiles: receiver
+
+hono:
+  client:
+    port: 15671
+
+address:
+  resolver:
+    cacheNegativeTimeToLive: 0 #discard failed DNS lookup results immediately
+    cacheMaxTimeToLive: 0 #support DNS based service resolution
+    rotateServers: true
+    queryTimeout: 2000
+
+message:
+  type: all
+
+---
+
+spring:
+  profiles: statistic
+
+statistic:
+  interval: 10000
+  autoreset: false
+
+---
+
+# For use with the demo certificates.
+# Do not use this profile for certificates that the JVM trusts, e.g. for the Hono sandbox. Simply set hono.client.tlsEnabled 
+# to true. 
+spring:
+  profiles: ssl
+hono:
+  client:
+    hostnameVerificationRequired: false
+    trustStorePath: target/config/hono-demo-certs-jar/trusted-certs.pem
+    tlsEnabled: true
+
+---
+
+spring:
+  profiles: amqp-send,amqp-command
+
+hono:
+  client:
+    port: 5672
+
+message:
+  address: telemetry
+  payload: '{"temp": 5}'
+
+---
+
+spring:
+  profiles: command
+
+hono:
+  client:
+    port: 15671
+
+command:
+  timeoutInSeconds: 60
+
+tenant:
+  id: DEFAULT_TENANT
+
+device:
+  id: 4711
+
